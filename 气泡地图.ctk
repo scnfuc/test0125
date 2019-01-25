@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?><Task schemaVersion="5.4">
+    <Registration>
+        <Name>气泡地图</Name>
+        <Description>“气泡地图”任务会创建一个叠加了气泡图的地图。</Description>
+        <GUID>8d4a8540-8924-4971-9938-46cba7261337</GUID>
+        <Procedures>SGMAP</Procedures>
+        <Version>3.8</Version>
+        <Links>
+            <Link href="http://documentation.sas.com/?softwareId=STUDIOMID&amp;softwareVersion=3.8&amp;softwareContextId=tasks&amp;requestor=inapp">SAS Studio 任务参考指南</Link>
+            <Link href="http://documentation.sas.com/?softwareId=MVADOC&amp;softwareVersion=3.8_9.4&amp;softwareContextId=proc_sgmap&amp;requestor=inapp">SGMAP 过程</Link>
+            <Link href="http://support.sas.com/training/tutorial/viya/index.html">SAS 教程</Link>
+        </Links>
+    </Registration>
+
+    <Metadata>
+    <!--- Define the data roles for this task. -->
+        <DataSources>
+            <DataSource libraryEngineInclude="V9" name="mapData" where="true">
+                <Roles>
+                    <Role maxVars="1" minVars="1" name="mapID" type="A">ID 变量:</Role>
+                </Roles>
+            </DataSource>
+            <DataSource name="plotData" where="true">
+                <Roles>
+                    <Role exclude="yVar" maxVars="1" minVars="1" name="xVar" type="A">经度:</Role>
+                    <Role exclude="xVar" maxVars="1" minVars="1" name="yVar" type="A">纬度:</Role>
+                    <Role maxVars="1" minVars="1" name="sizeVar" type="N">气泡大小:</Role>
+                    <Role maxVars="1" minVars="0" name="labelVar" type="A">气泡标签:</Role>
+                    <Role maxVars="1" minVars="0" name="groupVar" type="A">组:</Role>
+                </Roles>
+            </DataSource>
+            <DataSource name="mapRespData" where="true">
+                <Roles>
+                    <Role maxVars="1" minVars="1" name="mapRespID" type="A">ID 变量:</Role>
+                    <Role maxVars="1" minVars="1" name="respVar" type="A">响应变量:</Role>
+                </Roles>
+            </DataSource>
+        </DataSources>
+
+        <Options>
+            <Option inputType="string" name="dataTab">数据</Option>
+            <Option inputType="string" name="plotDataGroup">图数据</Option>
+            <Option inputType="string" name="plotDataLabel">数据</Option>
+            <Option inputType="string" name="plotRolesGroup">角色</Option>
+            <Option inputType="string" name="mapGroup0">基本地图</Option>
+            <Option inputType="string" name="mapDataGroup">地图数据</Option>
+            <Option inputType="string" name="mapDataLabel">数据</Option>
+            <Option inputType="string" name="mapRolesGroup">角色</Option>
+            <Option defaultValue="1" indent="0" inputType="radio" name="openStreetMap" variable="mapType">OpenStreetMap</Option>
+            <Option indent="0" inputType="radio" name="esriMap" variable="mapType">Esri 地图</Option>
+			<Option defaultValue="http://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer" indent="1" inputType="validationtext" invalidMessage="无效的 URL" missingMessage="缺失 URL" name="esriUrl" promptMessage="输入 Esri 地图 URL" required="true">指定 Esri 基本地图 URL:</Option>
+            <Option defaultValue="1" inputType="checkbox" name="baseMap">包含基本地图图层</Option>
+
+
+            <Option inputType="string" name="choroMapGroup">地区分布图</Option>
+
+            <Option defaultValue="0" inputType="checkbox" name="choroMap">包含地区分布图图层</Option>
+
+            <Option inputType="string" name="mapRespDataGroup">地图响应数据</Option>
+            <Option inputType="string" name="mapRespDataLabel">数据</Option>
+            <Option inputType="string" name="mapRespRolesGroup">角色</Option>
+            <Option defaultValue="0" inputType="checkbox" name="includeResponse">包括响应数据</Option>
+
+
+            <Option inputType="string" name="appearanceTab">外观</Option>
+        
+        <!--- define the plot options -->
+            <Option inputType="string" name="graphOptionsGroup">图</Option>
+		<Option defaultValue="0.0" discreteValues="20" inputType="slider" maxValue="1.0" minValue="0" name="trans" showButtons="true">透明度:</Option>
+
+        <!--- define the choro map options -->
+            <Option inputType="string" name="choroMapOptionsGroup">地区分布图</Option>
+		<Option defaultValue="0.0" discreteValues="20" inputType="slider" maxValue="1.0" minValue="0" name="transChoro" showButtons="true">透明度:</Option>
+
+            <!--- define the line attributes options -->
+            <Option inputType="string" name="lineAttrsGroup">线条特性</Option>
+            <Option defaultValue="solid" inputType="combobox" name="linePattern">线条样式:</Option>
+            <Option inputType="string" name="solidLine" returnValue="solid">实线（默认）</Option>
+            <Option inputType="string" name="shortDashLine" returnValue="shortdash">短划线</Option>
+            <Option inputType="string" name="mediumDashLine" returnValue="mediumdash">中划线</Option>
+            <Option inputType="string" name="longDashLine" returnValue="longdash">长划线</Option>
+            <Option inputType="string" name="mediumDashShortDashLine" returnValue="mediumdashshortdash">中划线短划线</Option>
+            <Option inputType="string" name="dashDashDotLine" returnValue="dashdashdot">短划线短划线圆点</Option>
+            <Option inputType="string" name="dashDotDotLine" returnValue="dashdotdot">短划线圆点圆点</Option>
+            <Option inputType="string" name="dashLine" returnValue="dash">短划线</Option>
+            <Option inputType="string" name="longDashShortDashLine" returnValue="longdashshortdash">长划线短划线</Option>
+            <Option inputType="string" name="dotLine" returnValue="dot">圆点</Option>
+            <Option inputType="string" name="thinDotLine" returnValue="thindot">细圆点</Option>
+            <Option inputType="string" name="shortDashDotLine" returnValue="shortdashdot">短划线圆点</Option>
+            <Option inputType="string" name="mediumDashDotDotLine" returnValue="mediumdashdotdot">中划线圆点圆点</Option>
+
+            <Option defaultValue="0" inputType="checkbox" name="useLineColor">设置颜色</Option>
+            <Option defaultValue="#003399" indent="1" inputType="color" name="lineColor">颜色</Option>
+            <Option decimalPlaces="0" defaultValue="1" increment="1" inputType="numstepper" maxValue="20" minValue="1" name="lineThick" required="true" size="8em">线条粗细（默认: 1 个像素）:</Option>
+
+	<!--- Define the task options.-->
+
+            <!--- Marker options -->                            
+            <Option inputType="string" name="markersGroup">气泡图</Option>
+            <Option defaultValue="1" inputType="checkbox" name="fillBubble">实心气泡</Option>
+            <Option defaultValue="0" indent="1" inputType="checkbox" name="useColor">设置颜色</Option>
+            <Option defaultValue="#003399" indent="2" inputType="color" name="markerColor">颜色</Option>
+
+            <!--- Data label options -->                            
+            <Option inputType="string" name="dataLabels">数据标签</Option>
+            <Option inputType="string" name="labelGroup">标签选项</Option>
+
+                    <!-- Text related opitons -->
+		    <Option defaultValue="0" indent="1" inputType="checkbox" name="setFontColor">设置字体颜色</Option>
+		    <Option defaultValue="#000000" indent="2" inputType="color" name="fontColor">颜色</Option>
+		    <Option decimalPlaces="0" defaultValue="7" increment="1" indent="1" inputType="numstepper" invalidMessage="输入大于等于 5 且小于等于 20 的整数。" maxValue="20" minValue="5" missingMessage="输入大于等于 5 且小于等于 20 的整数。" name="fontSize" promptMessage="输入大于等于 5 且小于等于 20 的整数。" rangeMessage="输入大于等于 5 且小于等于 20 的整数。" required="true" size="8em">字体大小（默认: 7 磅）:</Option>
+
+			<Option defaultValue="" indent="1" inputType="combobox" name="fontWeightCombo">字体粗细:</Option>
+			<Option inputType="string" name="fontWeightnormal" returnValue="normal">常规（默认）</Option>
+			<Option inputType="string" name="fontWeightbold" returnValue="bold">粗体</Option>
+
+			<Option defaultValue="" indent="1" inputType="combobox" name="fontStyleCombo">字形:</Option>
+			<Option inputType="string" name="fontStyleitalic" returnValue="italic">斜体</Option>
+			<Option inputType="string" name="fontStylenormal" returnValue="normal">常规（默认）</Option>
+
+			<Option defaultValue="Albany AMT" indent="1" inputType="combobox" name="fontFamilyCombo">字体系列:</Option>
+			<Option inputType="string" name="fontFamilyAlbanyAMT" returnValue="Albany AMT">Albany AMT（Arial，默认）</Option>
+			<Option inputType="string" name="fontFamilyThorndaleAMT" returnValue="Thorndale AMT">Thorndale AMT (Times New Roman)</Option>
+			<Option inputType="string" name="fontFamilyCumberlandAMT" returnValue="Cumberland AMT">Cumberland AMT (Courier New)</Option>
+			<Option inputType="string" name="fontFamilycustom" returnValue="custom">指定字体系列</Option>
+			<Option defaultValue="" indent="2" inputType="inputtext" missingMessage="" name="customFontFamily" promptMessage="" required="TRUE">系列:</Option>
+            
+            <Option defaultValue="default" inputType="combobox" name="labelPosition" width="200px">标签位置:</Option>
+            <Option inputType="string" name="default" returnValue="default">优化（默认）</Option>
+            <Option inputType="string" name="topRight" returnValue="topright">右上</Option>
+            <Option inputType="string" name="topLeft" returnValue="topleft">左上</Option>
+            <Option inputType="string" name="bottomRight" returnValue="bottomright">右下</Option>
+            <Option inputType="string" name="bottomLeft" returnValue="bottomleft">左下</Option>
+            <Option inputType="string" name="top">上</Option>
+            <Option inputType="string" name="right">右</Option>
+            <Option inputType="string" name="left">左</Option>
+            <Option inputType="string" name="bottom">下</Option>
+            <Option inputType="string" name="center">中心</Option>
+
+            <!--- Legend label options -->                            
+            <Option inputType="string" name="legendLabelGroup">图例</Option>
+            <Option defaultValue="1" inputType="checkbox" name="plotLegend">生成图例</Option>
+            <Option defaultValue="" indent="1" inputType="inputtext" name="legendLabel" width="400px">标签:</Option>
+            <Option defaultValue="1" inputType="checkbox" name="choroLegend">生成地区分布图图例</Option>
+            <Option defaultValue="" indent="1" inputType="inputtext" name="choroLegendLabel" width="400px">标签:</Option>
+            
+            <!--- Title and footnotes options -->                            
+            <Option inputType="string" name="title">标题和脚注</Option>
+            <Option defaultValue="" inputType="inputtext" name="titleString" width="400px">标题:</Option>
+            <Option decimalPlaces="0" defaultValue="14" increment="1" indent="1" inputType="numstepper" invalidMessage="输入大于等于 5 且小于等于 24 的整数。" maxValue="24" minValue="5" missingMessage="输入大于等于 5 且小于等于 24 的整数。" name="titleSize" promptMessage="输入大于等于 5 且小于等于 24 的整数。" rangeMessage="输入大于等于 5 且小于等于 24 的整数。" required="true" size="8em">字体大小（默认值: 14 磅）:</Option>
+            <Option defaultValue="" inputType="inputtext" name="footnoteString" width="400px">脚注:</Option>
+            <Option decimalPlaces="0" defaultValue="12" increment="1" indent="1" inputType="numstepper" invalidMessage="输入大于等于 5 且小于等于 20 的整数。" maxValue="20" minValue="5" missingMessage="输入大于等于 5 且小于等于 20 的整数。" name="footnoteSize" promptMessage="输入大于等于 5 且小于等于 20 的整数。" rangeMessage="输入大于等于 5 且小于等于 20 的整数。" required="true" size="8em">字体大小（默认值: 12 磅）:</Option>
+            
+            <!--- Graph Size options -->                            
+            <Option inputType="string" name="graphSize">图形大小</Option>
+            <Option defaultValue="in" inputType="combobox" name="dimType" width="100px">单位:</Option>
+            <Option inputType="string" name="in">英寸（默认）</Option>
+            <Option inputType="string" name="cm">厘米</Option>
+            <Option inputType="string" name="px">像素</Option>
+            <Option decimalPlaces="0,1" defaultValue="6.4" increment="0.1" inputType="numstepper" invalidMessage="输入一个 2 至 8 之间的数值作为宽度（英寸）" maxValue="8.0" minValue="2.0" missingMessage="输入一个 2 至 8 之间的数值作为宽度（英寸）" name="inchWidth" promptMessage="输入一个 2 至 8 之间的数值作为宽度（英寸）" rangeMessage="输入一个 2 至 8 之间的数值作为宽度（英寸）" required="true" size="10em">宽度:</Option>
+            <Option decimalPlaces="0,1" defaultValue="4.8" increment="0.1" inputType="numstepper" invalidMessage="输入一个 2 至 12 之间的数值作为高度（英寸）" maxValue="12.0" minValue="2.0" missingMessage="输入一个 2 至 12 之间的数值作为高度（英寸）" name="inchHeight" promptMessage="输入一个 2 至 12 之间的数值作为高度（英寸）" rangeMessage="输入一个 2 至 12 之间的数值作为高度（英寸）" required="true" size="10em">高度:</Option>
+            <Option decimalPlaces="0,1" defaultValue="16" increment="0.1" inputType="numstepper" invalidMessage="输入一个 5 至 20 之间的数值作为宽度（厘米）" maxValue="20.0" minValue="5.0" missingMessage="输入一个 5 至 20 之间的数值作为宽度（厘米）" name="cmWidth" promptMessage="输入一个 5 至 20 之间的数值作为宽度（厘米）" rangeMessage="输入一个 5 至 20 之间的数值作为宽度（厘米）" required="true" size="10em">宽度:</Option>
+            <Option decimalPlaces="0,1" defaultValue="12" increment="0.1" inputType="numstepper" invalidMessage="输入一个 5 至 30 之间的数值作为高度（厘米）" maxValue="30.0" minValue="5.0" missingMessage="输入一个 5 至 30 之间的数值作为高度（厘米）" name="cmHeight" promptMessage="输入一个 5 至 30 之间的数值作为高度（厘米）" rangeMessage="输入一个 5 至 30 之间的数值作为高度（厘米）" required="true" size="10em">高度:</Option>
+            <Option decimalPlaces="0,1" defaultValue="640" increment="1" inputType="numstepper" invalidMessage="输入一个 50 至 768 之间的数值作为宽度（像素）" maxValue="768" minValue="50" missingMessage="输入一个 50 至 768 之间的数值作为宽度（像素）" name="pixelWidth" promptMessage="输入一个 50 至 768 之间的数值作为宽度（像素）" rangeMessage="输入一个 50 至 768 之间的数值作为宽度（像素）" required="true" size="10em">宽度:</Option>
+            <Option decimalPlaces="0,1" defaultValue="480" increment="1" inputType="numstepper" invalidMessage="输入一个 50 至 1200 之间的数值作为高度（像素）" maxValue="1200" minValue="50" missingMessage="输入一个 50 至 1200 之间的数值作为高度（像素）" name="pixelHeight" promptMessage="输入一个 50 至 1200 之间的数值作为高度（像素）" rangeMessage="输入一个 50 至 1200 之间的数值作为高度（像素）" required="true" size="10em">高度:</Option>
+            
+       
+        </Options>
+    </Metadata>
+
+    <!--- Define the task options relationships                  -->
+    <!--- The UI engine will determine the best respresentation. -->
+    <UI>
+		<Container option="dataTab">
+			<Group open="true" option="plotDataGroup">
+				<Group open="true" option="plotDataLabel">
+					<DataItem data="plotData"/>
+				</Group>
+				<Group open="true" option="plotRolesGroup">
+					<RoleItem role="yVar"/>
+					<RoleItem role="xVar"/>
+					<RoleItem role="sizeVar"/>
+					<RoleItem role="groupVar"/>
+				</Group>
+			</Group>
+			
+			<OptionItem option="choroMap"/>
+			<Group open="true" option="choroMapGroup">
+				<Group open="true" option="mapDataGroup">
+					<Group open="true" option="mapDataLabel">
+						<DataItem data="mapData"/>
+					</Group>
+					<Group open="true" option="mapRolesGroup">
+						<RoleItem role="mapID"/>
+					</Group>
+				</Group>
+				<OptionItem option="includeResponse"/>
+				<Group open="true" option="mapRespDataGroup">
+					<Group open="true" option="mapRespDataLabel">
+						<DataItem data="mapRespData"/>
+					</Group>
+					<Group open="true" option="mapRespRolesGroup">
+						<RoleItem role="respVar"/>
+						<RoleItem role="mapRespID"/>
+					</Group>
+				</Group>
+			</Group>
+			
+			<OptionItem option="baseMap"/>
+			<Group open="true" option="mapGroup0">
+				<OptionItem option="openStreetMap"/>
+				<OptionItem option="esriMap"/>
+				<OptionItem option="esriUrl"/>
+			</Group>
+		</Container>
+
+	<Container option="appearanceTab">
+
+            <Group open="false" option="dataLabels">
+                <RoleItem role="labelVar"/>
+                <Group open="true" option="labelGroup">
+                        <OptionItem option="setFontColor"/>
+                        <OptionItem option="fontColor"/>
+
+			<OptionChoice option="fontFamilyCombo">
+			    <OptionItem option="fontFamilyAlbanyAMT"/>
+			    <OptionItem option="fontFamilyThorndaleAMT"/>
+			    <OptionItem option="fontFamilyCumberlandAMT"/>
+			    <OptionItem option="fontFamilycustom"/>
+			</OptionChoice>
+			    <OptionItem option="customFontFamily"/>
+                 
+                        <OptionItem option="fontSize"/>
+
+			<OptionChoice option="fontStyleCombo">
+			    <OptionItem option="fontStylenormal"/>
+			    <OptionItem option="fontStyleitalic"/>
+			</OptionChoice>
+
+			<OptionChoice option="fontWeightCombo">
+			    <OptionItem option="fontWeightnormal"/>
+			    <OptionItem option="fontWeightbold"/>
+			</OptionChoice>
+                    
+			    <OptionChoice option="labelPosition">
+				<OptionItem option="default"/>
+				<OptionItem option="topRight"/>
+				<OptionItem option="topLeft"/>
+				<OptionItem option="bottomRight"/>
+				<OptionItem option="bottomLeft"/>
+				<OptionItem option="top"/>
+				<OptionItem option="right"/>
+				<OptionItem option="left"/>
+				<OptionItem option="bottom"/>
+				<OptionItem option="center"/>
+			    </OptionChoice>
+                </Group>
+            </Group>
+
+		<Group open="true" option="legendLabelGroup">
+			<OptionItem option="choroLegend"/>
+			<OptionItem option="choroLegendLabel"/>
+			<OptionItem option="plotLegend"/>
+			<OptionItem option="legendLabel"/>
+		</Group>
+
+	    <Group open="true" option="markersGroup">
+		<OptionItem option="fillBubble"/>
+		<OptionItem option="useColor"/>
+		<OptionItem option="markerColor"/>
+	    </Group>
+
+		<Group open="true" option="graphOptionsGroup">
+			<OptionItem option="trans"/>
+		</Group>
+		
+		<Group open="true" option="choroMapOptionsGroup">
+			<Group option="lineAttrsGroup">
+				<OptionItem option="useLineColor"/>
+				<OptionItem option="lineColor"/>
+				<OptionItem option="lineThick"/>
+			    <OptionChoice option="linePattern">
+				<OptionItem option="solidLine"/>
+				<OptionItem option="shortDashLine"/>
+				<OptionItem option="mediumDashLine"/>
+				<OptionItem option="longDashLine"/>
+				<OptionItem option="mediumDashShortDashLine"/>
+				<OptionItem option="dashDashDotLine"/>
+				<OptionItem option="dashLine"/>
+				<OptionItem option="longDashShortDashLine"/>
+				<OptionItem option="dotLine"/>
+				<OptionItem option="thinDotLine"/>
+				<OptionItem option="shortDashDotLine"/>
+				<OptionItem option="mediumDashDotDotLine"/>
+			    </OptionChoice>
+			</Group>
+			<OptionItem option="transChoro"/>
+		</Group>
+		
+            <Group open="false" option="title">
+                <OptionItem option="titleString"/>
+                <OptionItem option="titleSize"/>
+                <OptionItem option="footnoteString"/>
+                <OptionItem option="footnoteSize"/>
+            </Group>
+            <Group option="graphSize">
+                <OptionChoice option="dimType">
+                    <OptionItem option="in"/>
+                    <OptionItem option="cm"/>
+                    <OptionItem option="px"/>
+                </OptionChoice>
+                <OptionItem option="inchWidth"/>
+                <OptionItem option="inchHeight"/>
+                <OptionItem option="cmWidth"/>
+                <OptionItem option="cmHeight"/>
+                <OptionItem option="pixelWidth"/>
+                <OptionItem option="pixelHeight"/>
+            </Group>
+
+        </Container>  
+    </UI>
+
+    <Dependencies>
+        <Dependency condition="($baseMap=='1')">
+            <Target action="show" conditionResult="true" option="mapGroup0"/>
+            <Target action="hide" conditionResult="false" option="mapGroup0"/>
+        </Dependency>
+
+        <Dependency condition="($baseMap=='1' &amp;&amp; $mapType=='esriMap')">
+            <Target action="show" conditionResult="true" option="esriUrl"/>
+            <Target action="hide" conditionResult="false" option="esriUrl"/>
+        </Dependency>
+
+        <Dependency condition="($choroMap=='1')">
+            <Target action="show" conditionResult="true" option="choroMapGroup"/>
+            <Target action="hide" conditionResult="false" option="choroMapGroup"/>
+            <Target action="show" conditionResult="true" option="choroMapOptionsGroup"/>
+            <Target action="hide" conditionResult="false" option="choroMapOptionsGroup"/>
+        </Dependency>
+        
+        <Dependency condition="($useLineColor=='1')">
+            <Target action="show" conditionResult="true" option="lineColor"/>
+            <Target action="hide" conditionResult="false" option="lineColor"/>
+        </Dependency>
+
+        <Dependency condition="($choroMap=='1' &amp;&amp; $includeResponse=='1')">
+            <Target action="show" conditionResult="true" option="mapRespDataGroup"/>
+            <Target action="hide" conditionResult="false" option="mapRespDataGroup"/>
+            <Target action="show" conditionResult="true" option="choroLegend"/>
+            <Target action="hide" conditionResult="false" option="choroLegend"/>
+            <Target action="show" conditionResult="true" option="transChoro"/>
+            <Target action="hide" conditionResult="false" option="transChoro"/>
+        </Dependency>
+        
+        <Dependency condition="($groupVar.size()&gt;0)">
+            <Target action="show" conditionResult="true" option="plotLegend"/>
+            <Target action="hide" conditionResult="false" option="plotLegend"/>
+        </Dependency>
+        
+        <Dependency condition="($choroLegend=='1')">
+            <Target action="show" conditionResult="true" option="choroLegendLabel"/>
+            <Target action="hide" conditionResult="false" option="choroLegendLabel"/>
+        </Dependency>
+        <Dependency condition="($plotLegend=='1')">
+            <Target action="show" conditionResult="true" option="legendLabel"/>
+            <Target action="hide" conditionResult="false" option="legendLabel"/>
+        </Dependency>
+
+
+        <Dependency condition="($labelVar.size()&gt;0)">
+            <Target action="show" conditionResult="true" option="labelGroup"/>
+            <Target action="hide" conditionResult="false" option="labelGroup"/>
+        </Dependency>
+
+        <Dependency condition="($labelVar.size()&gt;0 &amp;&amp; $setFontColor=='1')">
+            <Target action="show" conditionResult="true" option="fontColor"/>
+            <Target action="hide" conditionResult="false" option="fontColor"/>
+        </Dependency>
+
+        <Dependency condition="($labelVar.size()&gt;0 &amp;&amp; $fontFamilyCombo=='custom')">
+            <Target action="show" conditionResult="true" option="customFontFamily"/>
+            <Target action="hide" conditionResult="false" option="customFontFamily"/>
+        </Dependency>
+        
+        <Dependency condition="($fillBubble=='1')">
+            <Target action="show" conditionResult="true" option="useColor"/>
+            <Target action="hide" conditionResult="false" option="useColor"/>
+        </Dependency>
+        
+        <Dependency condition="($fillBubble=='1' &amp;&amp; $useColor=='1')">
+            <Target action="show" conditionResult="true" option="markerColor"/>
+            <Target action="hide" conditionResult="false" option="markerColor"/>
+        </Dependency>
+        
+                <Dependency condition="($dimType=='px')">
+	           <Target action="show" conditionResult="true" option="pixelWidth"/>
+	           <Target action="show" conditionResult="true" option="pixelHeight"/>
+	           <Target action="hide" conditionResult="true" option="inchWidth"/>
+	           <Target action="hide" conditionResult="true" option="inchHeight"/>
+	           <Target action="hide" conditionResult="true" option="cmWidth"/>
+	           <Target action="hide" conditionResult="true" option="cmHeight"/>
+	        </Dependency>
+	
+	        <Dependency condition="($dimType=='in')">
+	           <Target action="hide" conditionResult="true" option="pixelWidth"/>
+	           <Target action="hide" conditionResult="true" option="pixelHeight"/>
+	           <Target action="show" conditionResult="true" option="inchWidth"/>
+	           <Target action="show" conditionResult="true" option="inchHeight"/>
+	           <Target action="hide" conditionResult="true" option="cmWidth"/>
+	           <Target action="hide" conditionResult="true" option="cmHeight"/>
+	        </Dependency>
+	
+	        <Dependency condition="($dimType=='cm')">
+	           <Target action="hide" conditionResult="true" option="pixelWidth"/>
+	           <Target action="hide" conditionResult="true" option="pixelHeight"/>
+	           <Target action="hide" conditionResult="true" option="inchWidth"/>
+	           <Target action="hide" conditionResult="true" option="inchHeight"/>
+	           <Target action="show" conditionResult="true" option="cmWidth"/>
+	           <Target action="show" conditionResult="true" option="cmHeight"/>
+	        </Dependency>
+
+        
+    </Dependencies>
+
+    <Requirements>
+        <Requirement condition="(!($xVar.size()&gt;=1 &amp;&amp; $yVar.size()&gt;=1 &amp;&amp; $xVar[0].get('type')!=$yVar[0].get('type')))">
+            <Message nlsKey="latLongVarsSameTypeMsgKey">The latitude and longitude must be of the same type.</Message>
+        </Requirement>
+        <Requirement condition="(!($mapID.size()&gt;=1 &amp;&amp; $mapRespID.size()&gt;=1 &amp;&amp; $mapID[0].get('type')!=$mapRespID[0].get('type')))">
+            <Message nlsKey="mapIdSameTypeMsgKey">The ID variables in map and map response data set must be of the same type.</Message>
+        </Requirement>
+        <Requirement condition="(!($choroMap=='0' &amp;&amp; $baseMap=='0') )">
+            <Message nlsKey="mapTypeMsgKey">At least one of choropleth and base maps must be selected.</Message>
+        </Requirement>
+    </Requirements>
+
+    <!--- Define the velocity code template. -->
+    <CodeTemplate>
+        <![CDATA[
+#if($labelVar.size()>0) #set($LBL=$labelVar.get(0)) #end
+
+##--Set Graph Size--##
+#if($dimType=="in")
+    #set($WIDTH="$inchWidth$dimType")
+    #set($HEIGHT="$inchHeight$dimType")
+#end
+
+#if($dimType=="cm")
+    #set($WIDTH="$cmWidth$dimType")
+    #set($HEIGHT="$cmHeight$dimType")
+#end
+
+#if($dimType=="px")
+    #set($WIDTH="$pixelWidth$dimType")
+    #set($HEIGHT="$pixelHeight$dimType")
+#end
+
+##--Set output size--##
+ods graphics / reset width=$WIDTH height=$HEIGHT;
+
+proc sgmap plotdata=$plotData#if($plotData.getWhereClause()!="")(where=($plotData.getWhereClause())) #end
+	#if($choroMap=='1') mapdata = $mapData#if($mapData.getWhereClause()!="")(where=($mapData.getWhereClause())) #end #end
+	#if($includeResponse == '1') maprespdata = $mapRespData#if($mapRespData.getWhereClause()!="")(where=($mapRespData.getWhereClause())) #end #end
+	#if( ($choroLegend && $plotLegend && $choroLegend=='0' && $plotLegend=='0') || 
+	     ($choroLegend && !$plotLegend && $choroLegend=='0') || 
+             (!$choroLegend && $plotLegend && $plotLegend=='0')  	     
+	   ) noautolegend #end
+	;
+
+    #if($mapType=='esriMap')
+    esrimap url='$esriUrl';
+    #elseif($mapType=='openStreetMap')
+    openstreetmap;    
+    #end
+
+    #if($choroMap=='1')
+    choromap #if($includeResponse == '1') $respVar[0] #end/ mapid = $mapID[0] 
+        #if($includeResponse == '1') id = $mapRespID[0] #if($choroLegend == '1') name="choroMap" #end #end 
+	#if($useLineColor=='1' || $lineThick!='1' || $linePattern!='solid') lineattrs=(
+	    #if($linePattern!='solid') pattern=$linePattern #end
+	    #if($lineThick!='1') thickness=$lineThick #end
+	    #if($useLineColor=='1') color=$lineColor #end)
+	#end
+        #if($transChoro && $transChoro != 0.0) transparency = $MathTool.roundTo(2, $transChoro)#end;
+    #end
+
+    #if($titleString != "") title #if($titleSize != 14) height=${titleSize}pt #end $CTMUtil.quoteString($titleString) ;#end
+    #if($footnoteString != "") footnote2 justify=left #if($footnoteSize != 12) height=${footnoteSize}pt #end $CTMUtil.quoteString($footnoteString);#end
+    
+
+    bubble x=$xVar[0] y=$yVar[0] size=$sizeVar[0]/    
+    #if($groupVar.size() > 0) group=$groupVar[0] #end
+    #if($LBL) datalabel=$LBL #end
+    #if($LBL && $labelPosition != 'default') datalabelpos=$labelPosition #end
+    #if($LBL) datalabelattrs=(
+
+    #if($setFontColor=='1') color=$fontColor #end
+    #if($fontFamilyCombo != 'Albany AMT') family = #if($fontFamilyCombo != 'custom') $CTMUtil.quoteString($fontFamilyCombo) #else $CTMUtil.quoteString($customFontFamily) #end #end
+    size=${fontSize}pt
+    #if($fontStyleCombo != 'normal') style=$fontStyleCombo #end
+    #if($fontWeightCombo != 'normal') weight=$fontWeightCombo #end
+    )#end
+    #if($fillBubble != '1') nofill #end
+    #if($fillBubble == '1' && $useColor=='1' ) fillattrs = (#if($useColor=='1') color=$markerColor#end)
+    #end
+    #if($trans != 0.0) transparency = $MathTool.roundTo(2, $trans)#end 
+    #if($plotLegend=='1') name="bubblePlot" #end
+    ;
+    
+    #if($plotLegend=='1') keylegend "bubblePlot" / title = #if($legendLabel != "") $CTMUtil.quoteString($legendLabel) #else $CTMUtil.quoteString($groupVar[0].get('value')) #end;    #end
+    #if($choroLegend == '1') #if($respVar[0].get('type') == 'Numeric') gradlegend #else keylegend#end "choroMap" / title = #if($choroLegendLabel != "") $CTMUtil.quoteString($choroLegendLabel) #else $CTMUtil.quoteString($respVar[0].get('value')) #end ; #end    
+run;    
+
+##--Clean up--##
+ods graphics / reset;
+#if($titleString!="") title; #end
+#if($footnoteString!="") footnote2; #end
+        
+]]>
+    </CodeTemplate>
+
+<TemplateValues version="3.8">
+<![CDATA[
+{"openStreetMap":"1","dotLine":"圆点","groupVar":"","fontFamilyCombo":"Albany AMT","px":"像素","fontStylenormal":"常规（默认）","sasOS":"X64_7PRO WIN","customFontFamily":"","linePattern":"solid","mediumDashLine":"中划线","sizeVar":"json:[{\"value\":\"SEGMENT\",\"type\":\"Numeric\",\"length\":5,\"format\":\"\",\"informat\":\"\",\"className\":\"RoleObject\"}]","mapDataGroup":"地图数据","longDashLine":"长划线","fontFamilycustom":"指定字体系列","legendLabel":"","in":"英寸（默认）","mediumDashDotDotLine":"中划线圆点圆点","fontFamilyAlbanyAMT":"Albany AMT（Arial，默认）","choroLegend":"1","plotLegend":"1","left":"左","graphOptionsGroup":"图","legendLabelGroup":"图例","fontSize":"7","fontWeightCombo":"normal","pixelWidth":"640","esriMap":"0","plotDataGroup":"图数据","trans":"0.0","esriUrl":"http://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer","shortDashDotLine":"短划线圆点","choroLegendLabel":"","markerColor":"#003399","bottomRight":"右下","shortDashLine":"短划线","fontWeightnormal":"常规（默认）","mapDataLabel":"数据","fontFamilyCumberlandAMT":"Cumberland AMT (Courier New)","dashDashDotLine":"短划线短划线圆点","dataLabels":"数据标签","default":"优化（默认）","top":"上","labelPosition":"default","lineThick":"1","titleString":"","mapID":"","fillBubble":"1","respVar":"","bottomLeft":"左下","lineAttrsGroup":"线条特性","mediumDashShortDashLine":"中划线短划线","graphSize":"图形大小","thinDotLine":"细圆点","topRight":"右上","mapType":"openStreetMap","cm":"厘米","right":"右","solidLine":"实线（默认）","sasVersion":"9.46","cmWidth":"16","setFontColor":"0","transChoro":"0.0","fontFamilyThorndaleAMT":"Thorndale AMT (Times New Roman)","mapRespID":"","footnoteSize":"12","cmHeight":"12","dataTab":"数据","useColor":"0","mapRespDataLabel":"数据","pixelHeight":"480","choroMapGroup":"地区分布图","mapRespDataGroup":"地图响应数据","labelVar":"","includeResponse":"0","bottom":"下","dimType":"in","lineColor":"#003399","labelGroup":"标签选项","fontWeightbold":"粗体","mapRespData":{"librarytable":""},"useLineColor":"0","mapRolesGroup":"角色","xVar":"json:[{\"value\":\"X\",\"type\":\"Numeric\",\"length\":8,\"format\":\"\",\"informat\":\"\",\"className\":\"RoleObject\"}]","footnoteString":"","plotData":{"librarytable":"MAPS.AFRICA"},"appearanceTab":"外观","mapRespRolesGroup":"角色","dashDotDotLine":"短划线圆点圆点","titleSize":"14","title":"标题和脚注","fontStyleCombo":"normal","inchHeight":"4.8","inchWidth":"6.4","markersGroup":"气泡图","yVar":"json:[{\"value\":\"Y\",\"type\":\"Numeric\",\"length\":8,\"format\":\"\",\"informat\":\"\",\"className\":\"RoleObject\"}]","plotRolesGroup":"角色","mapGroup0":"基本地图","plotDataLabel":"数据","choroMapOptionsGroup":"地区分布图","baseMap":"1","center":"中心","dashLine":"短划线","fontStyleitalic":"斜体","longDashShortDashLine":"长划线短划线","mapData":{"librarytable":""},"choroMap":"0","topLeft":"左上","fontColor":"#000000"}
+]]>
+</TemplateValues>
+</Task>
